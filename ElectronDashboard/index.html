@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Erros</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+        .card {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.4);
+        }
+        .btn {
+            background-color: #e93a0e;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #b62501;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        thead {
+            background-color: #e93a0e;
+            color: white;
+        }
+        tbody tr {
+            border-bottom: 1px solid #2c2c2c;
+            transition: background-color 0.2s ease;
+        }
+        tbody tr:hover {
+            background-color: #1f1f1f;
+        }
+        .paginacao {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        .paginacao button {
+            background-color: #e93a0e;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .paginacao button:hover {
+            background-color: #b62501;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Dashboard de Erros</h1>
+
+<div class="card">
+    <button class="btn" onclick="carregarErros()">Atualizar</button>
+    <table>
+        <thead>
+        <tr>
+            <th>Erro</th>
+            <th>Trace</th>
+            <th>Quantidade</th>
+            <th>Clientes Afetados</th>
+            <th>Data</th>
+        </tr>
+        </thead>
+        <tbody id="errosTabela">
+        </tbody>
+    </table>
+    <div class="paginacao" id="paginacao">
+    </div>
+</div>
+
+<script>
+    let erros = [];
+    let paginaAtual = 1;
+    const itensPorPagina = 10;
+
+    function carregarErros() {
+        fetch('http://localhost:5000/api/erros')
+            .then(response => response.json())
+            .then(data => {
+                erros = data;
+                paginaAtual = 1;
+                renderizarTabela();
+            })
+            .catch(err => alert('Erro ao buscar dados: ' + err));
+    }
+
+    function renderizarTabela() {
+        const tabela = document.getElementById('errosTabela');
+        tabela.innerHTML = '';
+        const inicio = (paginaAtual - 1) * itensPorPagina;
+        const fim = inicio + itensPorPagina;
+        erros.slice(inicio, fim).forEach(erro => {
+            const linha = `
+      <tr>
+        <td>${erro.erro}</td>
+        <td>${erro.trace}</td>
+        <td>${erro.quantidade}</td>
+        <td>${erro.clientesAfetados}</td>
+        <td>${new Date(erro.data).toLocaleString()}</td>
+      </tr>`;
+            tabela.innerHTML += linha;
+        });
+        renderizarPaginacao();
+    }
+
+    function renderizarPaginacao() {
+        const paginacao = document.getElementById('paginacao');
+        paginacao.innerHTML = '';
+
+        if (paginaAtual > 1) {
+            paginacao.innerHTML += `<button onclick="paginaAnterior()">Anterior</button>`;
+        }
+
+        if (erros.length > paginaAtual * itensPorPagina) {
+            paginacao.innerHTML += `<button onclick="proximaPagina()">Próxima</button>`;
+        }
+    }
+
+    function paginaAnterior() {
+        if (paginaAtual > 1) {
+            paginaAtual--;
+            renderizarTabela();
+        }
+    }
+
+    function proximaPagina() {
+        if (paginaAtual * itensPorPagina < erros.length) {
+            paginaAtual++;
+            renderizarTabela();
+        }
+    }
+
+    carregarErros();
+</script>
+
+</body>
+</html>

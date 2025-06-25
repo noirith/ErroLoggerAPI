@@ -1,0 +1,14 @@
+# C# / .NET
+bin/
+obj/
+*.user
+*.suo
+
+# Node / Electron
+node_modules/
+dist/
+
+# Outros
+*.log
+.DS_Store
+Thumbs.db
