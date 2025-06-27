@@ -2,6 +2,9 @@
 
 API e Dashboard para monitoramento e registro de erros de aplicações.
 
+![image](https://github.com/user-attachments/assets/9116de16-a96a-4e82-a4c8-20c6698a7723)
+
+
 ## ✨ Tecnologias utilizadas
 
 - ASP.NET Core (C#)
