@@ -16,16 +16,15 @@ public class ErrosController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> SalvarErro([FromBody] ErroReportado erro)
+    public void SalvarErro([FromBody] ErroReportado erro)
     {
-        await _erroService.SalvarErroAsync(erro);
-        return Ok(erro);
+        _erroService.SalvarErroAsync(erro);
     }
 
     [HttpGet]
-public async Task<IActionResult> ObterErros()
-{
-    var erros = await _erroService.ObterErrosAsync();
-    return Ok(erros);
-}
+    public async Task<IActionResult> ObterErros()
+    {
+        var erros = await _erroService.ObterErrosAgrupadosAsync();
+        return Ok(erros);
+    }
 }

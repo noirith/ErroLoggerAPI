@@ -15,8 +15,22 @@ public class ErroService
         _erros = database.GetCollection<ErroReportado>(settings.Value.CollectionName);
     }
 
-    public async Task<List<ErroReportado>> ObterErrosAsync() =>
-        await _erros.Find(_ => true).ToListAsync();
+    public async Task<List<ErroDTO>> ObterErrosAgrupadosAsync()
+    {
+        var agrupados = await _erros.Aggregate()
+            .Group(e => new { e.Erro, e.Trace }, g => new ErroDTO
+            {
+                Erro = g.Key.Erro,
+                Trace = g.Key.Trace,
+                Quantidade = g.Sum(e => e.Quantidade),
+                ClientesAfetados = g.Sum(e => e.ClientesAfetados),
+                Data = g.Max(e => e.Data).ToString("dd/MM/yyyy HH:mm:ss")
+            })
+            .ToListAsync();
+
+        return agrupados;
+    }
+
 
     public async Task SalvarErroAsync(ErroReportado erro)
 {
