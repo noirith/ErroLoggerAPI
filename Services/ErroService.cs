@@ -15,21 +15,24 @@ public class ErroService
         _erros = database.GetCollection<ErroReportado>(settings.Value.CollectionName);
     }
 
-    public async Task<List<ErroDTO>> ObterErrosAgrupadosAsync()
+    public async Task<List<ErroDTO>> ObterErrosPaginadosAsync(int pagina, int tamanhoPagina)
     {
-        var agrupados = await _erros.Aggregate()
-            .Group(e => new { e.Erro, e.Trace }, g => new ErroDTO
-            {
-                Erro = g.Key.Erro,
-                Trace = g.Key.Trace,
-                Quantidade = g.Sum(e => e.Quantidade),
-                ClientesAfetados = g.Sum(e => e.ClientesAfetados),
-                Data = g.Max(e => e.Data).ToString("dd/MM/yyyy HH:mm:ss")
-            })
+        var erros = await _erros.Find(_ => true)
+            .SortByDescending(e => e.Data)
+            .Skip((pagina - 1) * tamanhoPagina)
+            .Limit(tamanhoPagina)
             .ToListAsync();
 
-        return agrupados;
+        return erros.Select(e => new ErroDTO
+        {
+            Erro = e.Erro,
+            Trace = e.Trace,
+            Quantidade = e.Quantidade,
+            ClientesAfetados = e.ClientesAfetados,
+            Data = e.Data.ToString("dd/MM/yyyy HH:mm:ss")
+        }).ToList();
     }
+
 
 
     public async Task SalvarErroAsync(ErroReportado erro)

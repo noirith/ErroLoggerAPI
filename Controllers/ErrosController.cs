@@ -22,9 +22,10 @@ public class ErrosController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> ObterErros()
+    public async Task<IActionResult> ObterErros([FromQuery] int pagina = 1, [FromQuery] int tamanhoPagina = 10)
     {
-        var erros = await _erroService.ObterErrosAgrupadosAsync();
+        var erros = await _erroService.ObterErrosPaginadosAsync(pagina, tamanhoPagina);
         return Ok(erros);
     }
+
 }
